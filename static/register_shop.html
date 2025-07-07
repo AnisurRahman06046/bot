@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register WhatsApp Shop</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 40px;
+        background: #f9f9f9;
+      }
+      .container {
+        max-width: 500px;
+        margin: auto;
+        padding: 30px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 0 10px #ccc;
+      }
+      input,
+      button {
+        width: 100%;
+        margin: 10px 0;
+        padding: 10px;
+        font-size: 16px;
+      }
+      button {
+        background: #0084ff;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #006fd6;
+      }
+      .message {
+        margin-top: 20px;
+        font-weight: bold;
+        white-space: pre-line;
+      }
+      code {
+        background-color: #f2f2f2;
+        padding: 4px 6px;
+        border-radius: 4px;
+        display: inline-block;
+        margin-top: 5px;
+      }
+      #copyBtn {
+        background: #00c853;
+        margin-top: 10px;
+      }
+      #copyBtn:hover {
+        background: #00b342;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Register a New WhatsApp Shop</h2>
+      <form id="shopForm">
+        <input type="text" id="name" placeholder="Shop Name" required />
+        <input
+          type="text"
+          id="phone_number_id"
+          placeholder="Phone Number ID"
+          required
+        />
+        <input
+          type="text"
+          id="access_token"
+          placeholder="Access Token"
+          required
+        />
+        <input
+          type="text"
+          id="verify_token"
+          placeholder="Verify Token"
+          required
+        />
+        <button type="submit">Register Shop</button>
+      </form>
+      <div class="message" id="message"></div>
+    </div>
+
+    <script>
+      document
+        .getElementById("shopForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const data = {
+            name: document.getElementById("name").value,
+            phone_number_id: document.getElementById("phone_number_id").value,
+            access_token: document.getElementById("access_token").value,
+            verify_token: document.getElementById("verify_token").value,
+          };
+
+          const res = await fetch("/shops", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+          });
+
+          const msgDiv = document.getElementById("message");
+          if (res.ok) {
+            const json = await res.json();
+            const webhookUrl = `https://58d0-103-160-8-88.ngrok-free.app/webhook`;
+
+            // Clear form
+            document.getElementById("shopForm").reset();
+
+            msgDiv.style.color = "green";
+            msgDiv.innerHTML = `
+            ✅ <strong>Shop Registered Successfully!</strong><br />
+            🆔 <strong>Shop ID:</strong> <code>${json.id}</code><br /><br />
+            🔗 <strong>Your Webhook URL:</strong><br />
+            <code id="webhookUrl">${webhookUrl}</code><br />
+            <button id="copyBtn">📋 Copy Webhook URL</button><br /><br />
+            📌 <em>Please copy this URL and set it as your WhatsApp Business Callback URL.</em>
+          `;
+
+            // Add clipboard copy logic
+            document
+              .getElementById("copyBtn")
+              .addEventListener("click", function () {
+                const text = document.getElementById("webhookUrl").innerText;
+                navigator.clipboard.writeText(text).then(() => {
+                  alert("✅ Webhook URL copied to clipboard!");
+                });
+              });
+          } else {
+            const err = await res.text();
+            msgDiv.style.color = "red";
+            msgDiv.innerText = "❌ Error: " + err;
+          }
+        });
+    </script>
+  </body>
+</html>
