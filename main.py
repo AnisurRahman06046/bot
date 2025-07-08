@@ -128,9 +128,13 @@ async def register_shop(
         name=shop_data.name,
         phone_number_id=shop_data.phone_number_id,
         access_token=shop_data.access_token,
-        verify_token=shop_data.verify_token,
+        # verify_token=shop_data.verify_token,
     )
-    return {"id": str(shop.id), "message": "Shop registered successfully"}
+    return {
+        "id": str(shop.id),
+        "verify_token": shop.verify_token,
+        "message": "Shop registered successfully",
+    }
 
 
 @app.get("/webhook")

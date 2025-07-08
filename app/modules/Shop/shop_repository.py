@@ -1,6 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from .shop_models import Shop
+import secrets
 
 
 class ShopRepository:
@@ -18,8 +19,12 @@ class ShopRepository:
         return result.scalars().first()
 
     async def create_shop(
-        self, name: str, phone_number_id: str, access_token: str, verify_token: str
+        self,
+        name: str,
+        phone_number_id: str,
+        access_token: str,
     ):
+        verify_token = secrets.token_urlsafe(16)
         new_shop = Shop(
             name=name,
             phone_number_id=phone_number_id,
