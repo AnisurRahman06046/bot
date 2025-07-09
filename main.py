@@ -107,34 +107,14 @@ from utils import (
     send_dynamic_product_list,
 )
 from app.modules.Shop.shop_schemas import ShopCreate
+from app.modules.Shop.shop_routes import router as shop_router
 from fastapi import HTTPException
 import json
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-
-@app.get("/register")
-async def serve_register_form():
-    return FileResponse("static/register_shop.html")
-
-
-@app.post("/shops")
-async def register_shop(
-    shop_data: ShopCreate, db: AsyncSession = Depends(get_async_db)
-):
-    repo = ShopRepository(db)
-    shop = await repo.create_shop(
-        name=shop_data.name,
-        phone_number_id=shop_data.phone_number_id,
-        access_token=shop_data.access_token,
-        # verify_token=shop_data.verify_token,
-    )
-    return {
-        "id": str(shop.id),
-        "verify_token": shop.verify_token,
-        "message": "Shop registered successfully",
-    }
+app.include_router(shop_router)
 
 
 @app.get("/webhook")
