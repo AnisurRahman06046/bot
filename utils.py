@@ -172,12 +172,71 @@ def send_dynamic_buttons(recipient_number: str, shop):
     return requests.post(url, json=payload, headers=headers)
 
 
-def send_dynamic_product_list(recipient_number: str, shop):
+# def send_dynamic_product_list(recipient_number: str, shop):
+#     url = f"https://graph.facebook.com/v19.0/{shop.phone_number_id}/messages"
+#     headers = {
+#         "Authorization": f"Bearer {shop.access_token}",
+#         "Content-Type": "application/json",
+#     }
+#     payload = {
+#         "messaging_product": "whatsapp",
+#         "to": recipient_number,
+#         "type": "interactive",
+#         "interactive": {
+#             "type": "list",
+#             "header": {"type": "text", "text": "🛍 Product Catalog"},
+#             "body": {"text": "Please select a product to view details:"},
+#             "footer": {"text": "Tap a product below"},
+#             "action": {
+#                 "button": "View Products",
+#                 "sections": [
+#                     {
+#                         "title": "Available Products",
+#                         "rows": [
+#                             {
+#                                 "id": "airpods_pro",
+#                                 "title": "🎧 AirPods Pro",
+#                                 "description": "$249 - Noise Cancelling",
+#                             },
+#                             {
+#                                 "id": "samsung_watch",
+#                                 "title": "⌚ Samsung Galaxy Watch",
+#                                 "description": "$199 - AMOLED Display",
+#                             },
+#                             {
+#                                 "id": "jbl_headphones",
+#                                 "title": "🎶 JBL Tune 760NC",
+#                                 "description": "$129 - Bluetooth 5.0",
+#                             },
+#                             {
+#                                 "id": "bose_qc45",
+#                                 "title": "🎧 Bose QC 45",
+#                                 "description": "$299 - Premium Audio",
+#                             },
+#                         ],
+#                     }
+#                 ],
+#             },
+#         },
+#     }
+#     return requests.post(url, json=payload, headers=headers)
+def send_dynamic_product_list(recipient_number: str, shop, products: list[dict]):
     url = f"https://graph.facebook.com/v19.0/{shop.phone_number_id}/messages"
     headers = {
         "Authorization": f"Bearer {shop.access_token}",
         "Content-Type": "application/json",
     }
+
+    rows = []
+    for product in products[:10]:  # Limit to first 10 for WhatsApp list cap
+        rows.append(
+            {
+                "id": str(product.get("id", "unknown")),
+                "title": product.get("name", "Unnamed Product"),
+                "description": f"{product.get('price', 'N/A')} - {product.get('short_description', '')[:50]}",
+            }
+        )
+
     payload = {
         "messaging_product": "whatsapp",
         "to": recipient_number,
@@ -192,31 +251,11 @@ def send_dynamic_product_list(recipient_number: str, shop):
                 "sections": [
                     {
                         "title": "Available Products",
-                        "rows": [
-                            {
-                                "id": "airpods_pro",
-                                "title": "🎧 AirPods Pro",
-                                "description": "$249 - Noise Cancelling",
-                            },
-                            {
-                                "id": "samsung_watch",
-                                "title": "⌚ Samsung Galaxy Watch",
-                                "description": "$199 - AMOLED Display",
-                            },
-                            {
-                                "id": "jbl_headphones",
-                                "title": "🎶 JBL Tune 760NC",
-                                "description": "$129 - Bluetooth 5.0",
-                            },
-                            {
-                                "id": "bose_qc45",
-                                "title": "🎧 Bose QC 45",
-                                "description": "$299 - Premium Audio",
-                            },
-                        ],
+                        "rows": rows,
                     }
                 ],
             },
         },
     }
+
     return requests.post(url, json=payload, headers=headers)

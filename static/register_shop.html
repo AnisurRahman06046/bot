@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -116,6 +116,160 @@
             <code id="webhookUrl">${webhookUrl}</code><br />
             <button id="copyWebhookBtn">📋 Copy Webhook URL</button><br /><br />
             📌 <em>Please use the Webhook URL and Verify Token in your WhatsApp Business settings.</em>
+          `;
+
+            document
+              .getElementById("copyWebhookBtn")
+              .addEventListener("click", function () {
+                const text = document.getElementById("webhookUrl").innerText;
+                navigator.clipboard.writeText(text).then(() => {
+                  alert("✅ Webhook URL copied to clipboard!");
+                });
+              });
+
+            document
+              .getElementById("copyTokenBtn")
+              .addEventListener("click", function () {
+                const text = document.getElementById("token").innerText;
+                navigator.clipboard.writeText(text).then(() => {
+                  alert("✅ Verify Token copied to clipboard!");
+                });
+              });
+          } else {
+            const err = await res.text();
+            msgDiv.style.color = "red";
+            msgDiv.innerText = "❌ Error: " + err;
+          }
+        });
+    </script>
+  </body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register WhatsApp Shop</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 40px;
+        background: #f9f9f9;
+      }
+      .container {
+        max-width: 500px;
+        margin: auto;
+        padding: 30px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 0 10px #ccc;
+      }
+      input,
+      button {
+        width: 100%;
+        margin: 10px 0;
+        padding: 10px;
+        font-size: 16px;
+      }
+      button {
+        background: #0084ff;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #006fd6;
+      }
+      #copyWebhookBtn,
+      #copyTokenBtn {
+        background: #00c853;
+        margin-top: 8px;
+      }
+      #copyWebhookBtn:hover,
+      #copyTokenBtn:hover {
+        background: #00b342;
+      }
+      .message {
+        margin-top: 20px;
+        font-weight: bold;
+        white-space: pre-line;
+      }
+      code {
+        background-color: #f2f2f2;
+        padding: 4px 6px;
+        border-radius: 4px;
+        display: inline-block;
+        margin-top: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Register a New WhatsApp Shop</h2>
+      <form id="shopForm">
+        <input type="text" id="name" placeholder="Shop Name" required />
+        <input
+          type="text"
+          id="phone_number_id"
+          placeholder="Phone Number ID"
+          required
+        />
+        <input
+          type="text"
+          id="access_token"
+          placeholder="WhatsApp Access Token"
+          required
+        />
+        <button type="submit">Register Shop</button>
+      </form>
+      <div class="message" id="message"></div>
+    </div>
+
+    <script>
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get("code");
+
+      document
+        .getElementById("shopForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          if (!code) {
+            alert("Missing Bitcommerz authorization code in URL.");
+            return;
+          }
+
+          const data = {
+            name: document.getElementById("name").value,
+            phone_number_id: document.getElementById("phone_number_id").value,
+            access_token: document.getElementById("access_token").value,
+            code: code,
+          };
+
+          const res = await fetch("/shops", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+          });
+
+          const msgDiv = document.getElementById("message");
+
+          if (res.ok) {
+            const json = await res.json();
+            const webhookUrl = `https://4e4c4bdb6347.ngrok-free.app/webhook`; // replace if needed
+
+            document.getElementById("shopForm").reset();
+            msgDiv.style.color = "green";
+            msgDiv.innerHTML = `
+            ✅ <strong>Shop Registered Successfully!</strong><br />
+            🆔 <strong>Shop ID:</strong> <code>${json.id}</code><br />
+            🔐 <strong>Verify Token:</strong> <code id="token">${json.verify_token}</code><br />
+            <button id="copyTokenBtn">📋 Copy Verify Token</button><br /><br />
+            🔗 <strong>Webhook URL:</strong><br />
+            <code id="webhookUrl">${webhookUrl}</code><br />
+            <button id="copyWebhookBtn">📋 Copy Webhook URL</button><br /><br />
+            📌 <em>Use the Webhook URL and Verify Token in your WhatsApp Business settings.</em>
           `;
 
             document
